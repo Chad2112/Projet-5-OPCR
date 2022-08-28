@@ -32,11 +32,11 @@ fetch("http://localhost:3000/api/products")
       console.log(linkProduit);
     }
   })
-
   .catch((error) => {
     let texteerror = document.getElementsByTagName("h1");
-    texteerror.innerHTML =
+    texteerror.innerText =
       "Nous n'avons pas réussi à afficher nos produit. Veuillez reesayer ultérieurement";
+    console.log(texteerror);
   });
 
 //.then((data) => (img.src = data[0].imageUrl))//
