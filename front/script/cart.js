@@ -1,7 +1,11 @@
+/* Recuperation du local storage au format JSON depuis le format string */
 let produitPanier = JSON.parse(localStorage.getItem("Produit"));
-console.log(produitPanier);
+/* Création d'une boucle pour recuperer tous les produit du panier
+  et création des balise correspondante par nombre de produit dans le panier*/
 for (i = 0; i < produitPanier.length; i++) {
   const productStorage = produitPanier[i];
+
+  /* Création de toutes les balises nécessaire a l'affichage des produit*/
   const cartItem = document.getElementById("cart__items");
   const article = document.createElement("article");
   const imageContent = document.createElement("div");
@@ -19,8 +23,8 @@ for (i = 0; i < produitPanier.length; i++) {
   const contentDelete = document.createElement("div");
   const deleteItem = document.createElement("p");
 
-  console.log(productStorage);
-
+  /* Ajout des attribut correspondant a leur balises respéctives, 
+  et ajouts des noeud enfants aux noeud parents */
   cartItem.appendChild(article);
   article.setAttribute("data-id", `${productStorage["Id"]}`);
   article.setAttribute("data-colors", `${productStorage["colors"]}`);
@@ -49,51 +53,58 @@ for (i = 0; i < produitPanier.length; i++) {
   );
   contentSettingsQuantity.appendChild(quantity);
   quantity.setAttribute("id", "textQuantity");
-  quantity.innerText = `${productStorage["quantity"]}`;
+  quantity.innerText = `Qté :  ${productStorage.quantity} `;
   contentSettingsQuantity.appendChild(inputQuantity);
   inputQuantity.setAttribute("type", "number");
   inputQuantity.setAttribute("class", "itemQuantity");
   inputQuantity.setAttribute("name", "itemQuantity");
   inputQuantity.setAttribute("min", "1");
   inputQuantity.setAttribute("max", `100`);
-  inputQuantity.setAttribute("value", `${productStorage["quantity"]}`);
+  inputQuantity.setAttribute("value", `${productStorage.quantity}`);
   contentSettings.appendChild(contentDelete);
   contentDelete.setAttribute("class", "cart__item__content__settings__delete");
   contentDelete.appendChild(deleteItem);
   deleteItem.setAttribute("class", "deleteItem");
   deleteItem.innerText = "Supprimer";
-  console.log(article);
+  console.log(productStorage.quantity);
 }
 
-/* const recupAllArticles = document.getElementsByTagName("article");
- for (i = 0; i < recupAllArticles.length; i++) {
-   const article = document.getElementsByTagName("article");
-   const deleteItemID = document.getElementById("deleteItem");
-   const articleId = article[i].dataset.id;
-   console.log(deleteItemID.closest(".cart__item"));
+const input = document.querySelectorAll(".itemQuantity");
+const quantityText = document.querySelectorAll("#textQuantity");
 
-   console.log(articleId);*/
+console.log(quantityText);
 
-/*const allArticles = recupAllArticles[i];
-   console.log(allArticles);*/
-/*  <article class="cart__item" data-id="{product-ID}" data-color="{product-color}">
-<div class="cart__item__img">
-  <img src="../images/product01.jpg" alt="Photographie d'un canapé">
-</div>
-<div class="cart__item__content">
-  <div class="cart__item__content__description">
-    <h2>Nom du produit</h2>
-    <p>Vert</p>
-    <p>42,00 €</p>
-  </div>
-  <div class="cart__item__content__settings">
-    <div class="cart__item__content__settings__quantity">
-      <p>Qté : </p>
-      <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="42">
-    </div>
-    <div class="cart__item__content__settings__delete">
-      <p class="deleteItem">Supprimer</p>
-    </div>
-  </div>
-</div>
-</article> */
+console.log(produitPanier);
+// Changement de la quantité d'un produit au click //
+// .. création d'un boucle qui recupère tout les inputs de la page //
+for (i = 0; i < input.length; i++) {
+  /* Création d'un evenement au click qui lorsque la quantité est modifier sur ..
+  .. l'input elle est également modifier dans le locale storage en direct */
+  input[i].addEventListener("click", () => {
+    /* Création d'un boucle qui récupere l'index du locale storage 
+    pour accéder à la quantité de chaque produit*/
+    for (let i = 0; i < produitPanier.length; i++) {
+      if (produitPanier[i].quantity != Number(input[i].value)) {
+        produitPanier[i].quantity = 0;
+        produitPanier[i].quantity += Number(input[i].value);
+
+        /* le resultat est renvoyer au local storage*/
+        localStorage.setItem("Produit", JSON.stringify(produitPanier));
+        console.log(Number(input[i].value));
+        for (i = 0; i < quantityText.length; i++) {
+          quantityText[i].innerText = `Qté : ${Number(input[i].value)}`;
+        }
+      }
+    }
+  });
+}
+/* Création d'un boucle pour récuperer toutes les quantité de chaque produit 
+et ainsi l'ajouter dans la variable sum qui stockera le total de tous les 
+  produits */
+let sum = 0;
+for (i = 0; i < produitPanier.length; i++) {
+  sum += produitPanier[i].quantity;
+}
+/* Ajout du total de la quantité sous forme de texte dans la balise correspondante */
+const totalQuantity = document.getElementById("totalQuantity");
+totalQuantity.innerText = sum;
