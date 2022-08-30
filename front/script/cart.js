@@ -1,5 +1,6 @@
 /* Recuperation du local storage au format JSON depuis le format string */
 let produitPanier = JSON.parse(localStorage.getItem("Produit"));
+
 /* Création d'une boucle pour recuperer tous les produit du panier
   et création des balise correspondante par nombre de produit dans le panier*/
 for (i = 0; i < produitPanier.length; i++) {
@@ -22,6 +23,7 @@ for (i = 0; i < produitPanier.length; i++) {
   const inputQuantity = document.createElement("input");
   const contentDelete = document.createElement("div");
   const deleteItem = document.createElement("p");
+  const totalOrderPrice = document.getElementById("totalPrice");
 
   /* Ajout des attribut correspondant a leur balises respéctives, 
   et ajouts des noeud enfants aux noeud parents */
@@ -47,10 +49,7 @@ for (i = 0; i < produitPanier.length; i++) {
   itemContent.appendChild(contentSettings);
   contentSettings.setAttribute("class", "cart__item__content__settings");
   contentSettings.appendChild(contentSettingsQuantity);
-  contentSettingsQuantity.setAttribute(
-    "class",
-    "cart__item__content__settings__quantity"
-  );
+  contentSettingsQuantity.setAttribute("class", "cart__item__content__settings__quantity");
   contentSettingsQuantity.appendChild(quantity);
   quantity.setAttribute("id", "textQuantity");
   quantity.innerText = `Qté :  ${productStorage.quantity} `;
@@ -66,11 +65,13 @@ for (i = 0; i < produitPanier.length; i++) {
   contentDelete.appendChild(deleteItem);
   deleteItem.setAttribute("class", "deleteItem");
   deleteItem.innerText = "Supprimer";
-  console.log(productStorage.quantity);
+  textPrice.setAttribute("id", "price");
+  textPrice.innerText = `${produitPanier[i].price * produitPanier[i].quantity} €`;
 }
-
+// Selection des balises qui vont etre modifier par la suite au click sur les balises input//
 const input = document.querySelectorAll(".itemQuantity");
 const quantityText = document.querySelectorAll("#textQuantity");
+const allPriceArticle = document.querySelectorAll("#price");
 
 console.log(quantityText);
 
@@ -96,8 +97,19 @@ for (i = 0; i < input.length; i++) {
         }
       }
     }
+    /* Création d'une boucle pour selectionner toutes les balise 'p' correspondant au prix de chaque articles
+     */
+    for (i = 0; i < allPriceArticle.length; i++) {
+      // Ajout dans une variable du prix de chaque article multiplié par leur nombre//
+      let prix = produitPanier[i].price * produitPanier[i].quantity;
+      // Ajout du resultat son forme de texte dans la balise 'p' correspondant au prix de chaque articles//
+      price[i].innerText = `${prix} €`;
+      console.log(price);
+      console.log(prix);
+    }
   });
 }
+
 /* Création d'un boucle pour récuperer toutes les quantité de chaque produit 
 et ainsi l'ajouter dans la variable sum qui stockera le total de tous les 
   produits */

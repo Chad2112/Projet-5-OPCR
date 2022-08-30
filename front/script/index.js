@@ -1,6 +1,6 @@
 // Requete fetch vers l'API//
 
-fetch("http://localhost:3000/api/products")
+fetch("http://localhost:3000/api/products/")
   // Reponse renvoyer par l'API au format j.son//
   .then((res) => res.json())
   //Stockage de l'ensemble des données de l'API dans la constante "articles"
@@ -33,10 +33,10 @@ fetch("http://localhost:3000/api/products")
     }
   })
   .catch((error) => {
-    let texteerror = document.getElementsByTagName("h1");
-    texteerror.innerText =
-      "Nous n'avons pas réussi à afficher nos produit. Veuillez reesayer ultérieurement";
+    let texteerror = document.querySelector("h1");
+    texteerror.innerText = "Nous n'avons pas réussi à afficher nos produit. Veuillez reesayer ultérieurement";
     console.log(texteerror);
+    console.log(error);
   });
 
 //.then((data) => (img.src = data[0].imageUrl))//

@@ -53,6 +53,7 @@ fetch(`http://localhost:3000/api/products/${IDProduit}`)
         quantity: quantityProduct,
         img: pageProduit.imageUrl,
         description: pageProduit.description,
+        price: price.innerText,
       };
       console.log(order);
       let storage = JSON.parse(localStorage.getItem("Produit"));
@@ -63,10 +64,7 @@ fetch(`http://localhost:3000/api/products/${IDProduit}`)
         console.log("null");
       } else if (storage != null) {
         for (let i = 0; i < storage.length; i++) {
-          if (
-            storage[i].colors == colorsProduct &&
-            storage[i].Id == idProduct
-          ) {
+          if (storage[i].colors == colorsProduct && storage[i].Id == idProduct) {
             storage[i].quantity += quantityProduct;
             console.log(i);
             console.log("same");
@@ -75,10 +73,7 @@ fetch(`http://localhost:3000/api/products/${IDProduit}`)
           }
         }
         for (let i = 0; i < storage.length; i++) {
-          if (
-            storage[i].Id == idProduct &&
-            storage[i].colors != colorsProduct
-          ) {
+          if (storage[i].Id == idProduct && storage[i].colors != colorsProduct) {
             storage.push(order);
             localStorage.setItem("Produit", JSON.stringify(storage));
             storage = JSON.parse(localStorage.getItem("produit"));
@@ -94,8 +89,6 @@ fetch(`http://localhost:3000/api/products/${IDProduit}`)
           }
         }
       }
-
-      localStorage.setItem("Produit", JSON.stringify(storage));
     });
   });
 
