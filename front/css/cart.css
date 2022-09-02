@@ -137,6 +137,23 @@ h2 {
 	margin-left: 8px;
 }
 
+
+.border__text__valid {
+	border: solid 2px rgb(2, 173, 2) !important;
+
+}
+
+.border__text__invalid {
+	border: red solid 3px !important;
+}
+
+.text__invalid {
+	color: rgb(0, 0, 0);
+}
+
+
+
+
 .cart__order__form__submit {
 	display: flex;
 	justify-content: center;

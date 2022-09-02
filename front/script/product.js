@@ -12,6 +12,9 @@ console.log(IDProduit);
 
 fetch(`http://localhost:3000/api/products/${IDProduit}`)
   .then((res) => res.json())
+  .catch((error) => {
+    alert("Connection impossible avec le serveur");
+  })
   .then((dataProduit) => {
     const pageProduit = dataProduit;
     console.log(dataProduit);
@@ -55,21 +58,32 @@ fetch(`http://localhost:3000/api/products/${IDProduit}`)
         description: pageProduit.description,
         price: price.innerText,
       };
-      console.log(order);
-      let storage = JSON.parse(localStorage.getItem("Produit"));
 
-      if (storage == null) {
-        storage = [];
-        storage.push(order);
-        console.log("null");
-      } else if (storage != null) {
-        for (let i = 0; i < storage.length; i++) {
-          if (storage[i].colors == colorsProduct && storage[i].Id == idProduct) {
-            storage[i].quantity += quantityProduct;
-            console.log(i);
-            console.log("same");
-            localStorage.setItem("Produit", JSON.stringify(storage));
-            storage = JSON.parse(localStorage.getItem("produit"));
+      function orderError() {
+        if (colorsProduct == "" && (quantityProduct < 1 || quantityProduct > 100)) {
+          alert("Veuillez selectionner une couleur ainsi qu'une quantité");
+        } else if (quantityProduct < 1 || quantityProduct > 100) {
+          alert("Veuillez rentrer une quantité valide ( comprise entre 1 et 100 )");
+        } else if ((quantityProduct >= 1 || quantityProduct <= 100) && colorsProduct == "") {
+          alert("Veuillez selectionner une couleur");
+        }
+      }
+
+      let storage = JSON.parse(localStorage.getItem("Produit"));
+      function addProduitPanier() {
+        if (storage == null) {
+          storage = [];
+          storage.push(order);
+          console.log("null");
+        } else if (storage != null) {
+          for (let i = 0; i < storage.length; i++) {
+            if (storage[i].colors == colorsProduct && storage[i].Id == idProduct) {
+              storage[i].quantity += quantityProduct;
+              console.log(i);
+              console.log("same");
+              localStorage.setItem("Produit", JSON.stringify(storage));
+              storage = JSON.parse(localStorage.getItem("produit"));
+            }
           }
         }
         for (let i = 0; i < storage.length; i++) {
@@ -89,20 +103,16 @@ fetch(`http://localhost:3000/api/products/${IDProduit}`)
           }
         }
       }
+      orderError();
+      addProduitPanier();
+
+      localStorage.setItem("Produit", JSON.stringify(storage));
     });
   });
 
-/*for (let i = 0; i < storage.length; i++) {
-  else if (storage != null) {
-      if (storage[i].colors == select.value) {
-        storage[i].quantity++;
-        localStorage.setItem("Produit", JSON.stringify(storage));
-        console.log(i);
-        console.log("same");
-      } else {
-        storage.push(order);
-        localStorage.setItem("Produit", JSON.stringify(storage));
-        console.log("notsame");
-      }
-    }
-  }*/
+/*.catch((error) => {
+    let texteerror = document.querySelector("h1");
+    texteerror.innerText = "Nous n'avons pas réussi à afficher nos produit. Veuillez reesayer ultérieurement";
+    console.log(texteerror);
+    console.log(error);
+  });*/
