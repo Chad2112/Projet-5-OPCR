@@ -1,6 +1,6 @@
 /* Recuperation du local storage au format JSON depuis le format string */
 let produitPanier = JSON.parse(localStorage.getItem("Produit"));
-
+console.log(produitPanier);
 /* Création d'une boucle pour recuperer tous les produit du panier
   et création des balise correspondante par nombre de produit dans le panier*/
 function createElementHtml() {
@@ -209,6 +209,7 @@ function userDataProcessing() {
   form.firstName.addEventListener("change", () => {
     validFirstName(this);
   });
+
   form.lastName.addEventListener("change", () => {
     validLastName(this);
   });
@@ -324,24 +325,41 @@ function userDataProcessing() {
       return false;
     }
   };
-
+  let productId = [];
+  const dataId = document.querySelectorAll("article");
+  for (i = 0; i < dataId.length; i++) {
+    let dataIdIndex = dataId[i].dataset.id;
+    productId[i] = dataIdIndex;
+  }
+  let orderProducts = {
+    contact: {
+      firstName: form.firstName.value,
+      lastName: form.lastName.value,
+      address: form.address.value,
+      city: form.city.value,
+      email: form.email.value,
+    },
+    produit: productId,
+  };
+  JSON.stringify(orderProducts);
+  console.log(orderProducts);
   submit.addEventListener("click", (e) => {
-    if (testFirstName != true || testLastName != true || testEmail != true || testAddress != true || testCity != true) {
+    if (validFirstName() !== true || validLastName() !== true || validEmail() !== true || validAddress() !== true || validCity() !== true) {
+      console.log("svdiouhbb");
       e.preventDefault();
     } else {
-      let productOrder = [];
-      productOrder.push(produitPanier);
-
-      const contactInfo = {
-        firstName: form.firstName.value,
-        lastName: form.lastName.value,
-        email: form.email.value,
-        address: form.address.value,
-        city: form.city.value,
-        product: productOrder,
-      };
-
-      console.log(contactInfo);
+      e.preventDefault();
+      fetch("http://localhost:3000/api/products/order", {
+        method: "POST",
+        body: JSON.stringify(orderProducts),
+        headers: { "Content-Type": "application/json" },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const products = data;
+          localStorage.setItem("order", JSON.stringify(orderProducts));
+          console.log(products);
+        });
     }
   });
 }
