@@ -71,88 +71,45 @@ function createElementHtml() {
   }
 }
 
-// Selection des balises qui vont etre modifier par la suite au click sur les balises input//
-// .. notament la quantité de chaque produit, la quantité total de tous les produit additionner//
-// .. le prix des articles ainsi que le prix total de tous les articles réuni//
-function editQuantityAndPrice() {
-  const input = document.querySelectorAll(".itemQuantity");
-  const quantityText = document.querySelectorAll("#textQuantity");
-  const allPriceArticle = document.querySelectorAll("#price");
-  const totalPrice = document.getElementById("totalPrice");
-  const totalQuantity = document.getElementById("totalQuantity");
-
-  //  Création d'un boucle qui recupère tout les inputs de la page //
-  for (i = 0; i < input.length; i++) {
-    /* Création d'un evenement au click qui lorsque la quantité est modifier sur ..
-  .. l'input elle modifie également le prix de chaque articles , le prix total , ..
-   .. la quantité de chaque article, ainsi que la quantité total et renvoi le resultat au local storage */
-    input[i].addEventListener("click", () => {
-      /* Création d'un boucle qui récupere l'index du locale storage 
-    pour accéder à la quantité de chaque produit*/
-      for (let i = 0; i < produitPanier.length; i++) {
-        /* Condition : si la quantité d'un produit dans le local storage est différente de la quantité sur l'input,
-           alors elle sera modifier en temps réèl */
-        if (produitPanier[i].quantity != Number(input[i].value)) {
-          produitPanier[i].quantity = 0;
-          produitPanier[i].quantity += Number(input[i].value);
-          /* le resultat est renvoyer au local storage*/
-          localStorage.setItem("Produit", JSON.stringify(produitPanier));
-          // Ajout de la quantité total de chaque produit dans sa balise texte correspondantes//
-          for (i = 0; i < quantityText.length; i++) {
-            quantityText[i].innerText = `Qté : ${Number(input[i].value)}`;
-          }
-        }
-      }
-      /* Création d'une boucle pour selectionner toutes les balise 'p' correspondant au prix de chaque articles
-       */
-      for (i = 0; i < allPriceArticle.length; i++) {
-        // Ajout dans une variable le prix de chaque article multiplié par leur nombre//
-        let prix = produitPanier[i].price * produitPanier[i].quantity;
-        // Ajout du resultat son forme de texte dans la balise 'p' correspondant au prix de chaque articles//
-        allPriceArticle[i].innerText = `${prix} €`;
-      }
-      // Creation d'une boucle pour calculer le prix et la quantité total de la commande//
-      let totalProductPrice = 0;
-      let totalProductQuantity = 0;
-      for (let i = 0; i < produitPanier.length; i++) {
-        let prixTotal = produitPanier[i].price * produitPanier[i].quantity;
-        totalProductQuantity += produitPanier[i].quantity;
-        totalProductPrice += prixTotal;
-        // Le resultat est renvoyer dans les balises texte correspondante//
-        totalPrice.innerText = totalProductPrice;
-        totalQuantity.innerText = totalProductQuantity;
-      }
-    });
+function priceArticle() {
+  /* Création d'une boucle pour selectionner toutes les balise 'p' correspondant au prix de chaque articles
+   */
+  const priceArticle = document.querySelectorAll("#price");
+  for (i = 0; i < priceArticle.length; i++) {
+    // Ajout dans une variable le prix de chaque article multiplié par leur nombre//
+    let prix = produitPanier[i].price * produitPanier[i].quantity;
+    // Ajout du resultat son forme de texte dans la balise 'p' correspondant au prix de chaque articles//
+    priceArticle[i].innerText = `${prix} €`;
   }
 }
-// Creation d'un fonction pour permettre a l'utilisateur de supprimer de son panier le produit qu'il souhaite//
 
-function deleteProduct() {
-  const deleteItem = document.querySelectorAll(".deleteItem");
-  const article = document.querySelectorAll(".cart__item");
-
-  for (i = 0; i < deleteItem.length; i++) {
-    const BtnDelete = deleteItem[i];
-    BtnDelete.addEventListener("click", () => {
-      console.log(BtnDelete);
-      const selectParentDelete = BtnDelete.closest("article");
-      selectParentDelete.parentNode.removeChild(selectParentDelete);
-
-      if (produitPanier.length == 1) {
-        localStorage.clear();
-      } else {
-        let filter = produitPanier.filter((productIdAndColors) => productIdAndColors.Id != selectParentDelete.dataset.id || productIdAndColors.colors != selectParentDelete.dataset.colors);
-        localStorage.setItem("Produit", JSON.stringify(filter));
-        console.log("produit supprimer");
+function productQuantity() {
+  const quantityText = document.querySelectorAll("#textQuantity");
+  const input = document.querySelectorAll(".itemQuantity");
+  //  Création d'un boucle qui recupère tout les inputs de la page //
+  for (i = 0; i < input.length; i++) {
+    /* Création d'un boucle qui récupere l'index du locale storage 
+      pour accéder à la quantité de chaque produit*/
+    for (let i = 0; i < produitPanier.length; i++) {
+      /* Condition : si la quantité d'un produit dans le local storage est différente de la quantité sur l'input,
+         alors elle sera modifier en temps réèl */
+      if (produitPanier[i].quantity != Number(input[i].value)) {
+        produitPanier[i].quantity = 0;
+        produitPanier[i].quantity += Number(input[i].value);
+        /* le resultat est renvoyer au local storage*/
+        localStorage.setItem("Produit", JSON.stringify(produitPanier));
+        // Ajout de la quantité total de chaque produit dans sa balise texte correspondantes//
+        for (i = 0; i < quantityText.length; i++) {
+          quantityText[i].innerText = `Qté : ${Number(input[i].value)}`;
+        }
       }
-    });
+    }
   }
 }
 
 //Creation d'une fonction qui calcul le prix total de tout les articles confondu présent dans le panier//
 function totalPrice() {
   const totalPrice = document.getElementById("totalPrice");
-
   let total = 0;
   for (let i = 0; i < produitPanier.length; i++) {
     let prixTotal = produitPanier[i].price * produitPanier[i].quantity;
@@ -160,9 +117,7 @@ function totalPrice() {
   }
   totalPrice.innerText = total;
 }
-
 //Creation d'une fonction qui calcul la quantité total de tout les articles confondu présent dans le panier//
-
 function totalQuantity() {
   let totalProductQuantity = 0;
   for (i = 0; i < produitPanier.length; i++) {
@@ -171,6 +126,46 @@ function totalQuantity() {
   /* Ajout du total de la quantité sous forme de texte dans la balise correspondante */
   const totalQuantity = document.getElementById("totalQuantity");
   totalQuantity.innerText = totalProductQuantity;
+}
+// Selection des balises qui vont etre modifier par la suite au click sur les balises input//
+// .. notament la quantité de chaque produit, la quantité total de tous les produit additionner//
+// .. le prix des articles ainsi que le prix total de tous les articles réuni//
+function editQuantityAndPrice() {
+  const input = document.querySelectorAll(".itemQuantity");
+  //  Création d'un boucle qui recupère tout les inputs de la page //
+  input.forEach((btnInput) =>
+    /* Création d'un evenement au click qui lorsque la quantité est modifier sur ..
+  .. l'input elle modifie également le prix de chaque articles , le prix total , ..
+   .. la quantité de chaque article, ainsi que la quantité total et renvoi le resultat au local storage */
+    btnInput.addEventListener("click", () => {
+      productQuantity();
+      priceArticle();
+      totalPrice();
+      totalQuantity();
+    })
+  );
+}
+
+// Creation d'un fonction pour permettre a l'utilisateur de supprimer de son panier le produit qu'il souhaite//
+
+function deleteProduct() {
+  const deleteItem = document.querySelectorAll(".deleteItem");
+  deleteItem.forEach((btnDelete) =>
+    btnDelete.addEventListener("click", () => {
+      const selectParentDelete = btnDelete.closest("article");
+      selectParentDelete.parentNode.removeChild(selectParentDelete);
+
+      if (produitPanier.length == 1) {
+        localStorage.clear();
+      } else {
+        const filter = produitPanier.filter((productIdAndColors) => productIdAndColors.Id != selectParentDelete.dataset.id || productIdAndColors.colors != selectParentDelete.dataset.colors);
+        localStorage.setItem("Produit", JSON.stringify(filter));
+        console.log("produit supprimer");
+        totalPrice();
+        totalQuantity();
+      }
+    })
+  );
 }
 
 //*******************************************************************VAlIDATION DU FORMULAIRE********************************************************************************** */
@@ -317,6 +312,7 @@ function userDataProcessing() {
       console.log("svdiouhbb");
       e.preventDefault();
     } else {
+      e.preventDefault();
       let productId = [];
       const dataId = document.querySelectorAll("article");
       for (i = 0; i < dataId.length; i++) {
