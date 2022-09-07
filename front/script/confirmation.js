@@ -1,4 +1,5 @@
-const produit = JSON.parse(localStorage.getItem("order"));
+let orderId = window.location.search.split("?").join("");
+console.log(orderId);
 const displayId = document.getElementById("orderId");
-
-console.log(produit);
+displayId.innerText = orderId;
+localStorage.clear();

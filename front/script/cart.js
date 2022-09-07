@@ -126,37 +126,24 @@ function editQuantityAndPrice() {
   }
 }
 // Creation d'un fonction pour permettre a l'utilisateur de supprimer de son panier le produit qu'il souhaite//
+
 function deleteProduct() {
   const deleteItem = document.querySelectorAll(".deleteItem");
-  for (i = 0; i < deleteItem.length; i++) {
-    const selectBtnDelete = deleteItem[i];
-    selectBtnDelete.addEventListener("click", () => {
-      const selectParentDelete = selectBtnDelete.closest("article");
-      selectParentDelete.parentNode.removeChild(selectParentDelete);
-      for (i = produitPanier.length; i <= produitPanier.length; i++) {
-        // Condition si il y a plus de 1 produit dans le local storage alors on supprimer le produit souhaité//
-        if (produitPanier.length > 1) {
-          produitPanier.splice(produitPanier[i], 1);
-          localStorage.setItem("Produit", JSON.stringify(produitPanier));
-        }
-        // Si l'utilisateur supprime l'unique produit de sa commande on vide le local storage//
-        else {
-          localStorage.clear();
-        }
-      }
-      // Creation d'une boucle pour calculer le prix et la quantité total de la commande quand un élément est supprimer//
+  const article = document.querySelectorAll(".cart__item");
 
-      const totalPrice = document.getElementById("totalPrice");
-      const totalQuantity = document.getElementById("totalQuantity");
-      let totalProductPrice = 0;
-      let totalProductQuantity = 0;
-      for (let i = 0; i < produitPanier.length; i++) {
-        let prixTotal = produitPanier[i].price * produitPanier[i].quantity;
-        totalProductQuantity += produitPanier[i].quantity;
-        totalProductPrice += prixTotal;
-        // Le resultat est renvoyer dans les balises texte correspondante//
-        totalPrice.innerText = totalProductPrice;
-        totalQuantity.innerText = totalProductQuantity;
+  for (i = 0; i < deleteItem.length; i++) {
+    const BtnDelete = deleteItem[i];
+    BtnDelete.addEventListener("click", () => {
+      console.log(BtnDelete);
+      const selectParentDelete = BtnDelete.closest("article");
+      selectParentDelete.parentNode.removeChild(selectParentDelete);
+
+      if (produitPanier.length == 1) {
+        localStorage.clear();
+      } else {
+        let filter = produitPanier.filter((productIdAndColors) => productIdAndColors.Id != selectParentDelete.dataset.id || productIdAndColors.colors != selectParentDelete.dataset.colors);
+        localStorage.setItem("Produit", JSON.stringify(filter));
+        console.log("produit supprimer");
       }
     });
   }
@@ -325,41 +312,80 @@ function userDataProcessing() {
       return false;
     }
   };
-  let productId = [];
-  const dataId = document.querySelectorAll("article");
-  for (i = 0; i < dataId.length; i++) {
-    let dataIdIndex = dataId[i].dataset.id;
-    productId[i] = dataIdIndex;
-  }
-  let orderProducts = {
-    contact: {
-      firstName: form.firstName.value,
-      lastName: form.lastName.value,
-      address: form.address.value,
-      city: form.city.value,
-      email: form.email.value,
-    },
-    produit: productId,
-  };
-  JSON.stringify(orderProducts);
-  console.log(orderProducts);
   submit.addEventListener("click", (e) => {
     if (validFirstName() !== true || validLastName() !== true || validEmail() !== true || validAddress() !== true || validCity() !== true) {
       console.log("svdiouhbb");
       e.preventDefault();
     } else {
-      e.preventDefault();
-      fetch("http://localhost:3000/api/products/order", {
+      let productId = [];
+      const dataId = document.querySelectorAll("article");
+      for (i = 0; i < dataId.length; i++) {
+        let dataIdIndex = dataId[i].dataset.id;
+        productId[i] = dataIdIndex;
+      }
+
+      let myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+
+      let raw = JSON.stringify({
+        contact: {
+          firstName: form.firstName.value,
+          lastName: form.lastName.value,
+          address: form.address.value,
+          city: form.city.value,
+          email: form.email.value,
+        },
+        products: productId,
+      });
+
+      let requestOptions = {
         method: "POST",
-        body: JSON.stringify(orderProducts),
-        headers: { "Content-Type": "application/json" },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          const products = data;
-          localStorage.setItem("order", JSON.stringify(orderProducts));
-          console.log(products);
-        });
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+
+      fetch("http://localhost:3000/api/products/order", requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          console.log(result);
+          const resultat = result.orderId;
+          console.log(resultat);
+          document.location.href = `../html/confirmation.html?${resultat}`;
+        })
+        .catch((error) => console.log("error", error));
+
+      //     let orderProducts = {
+      //       contact: {
+      //         firstName: form.firstName.value,
+      //         lastName: form.lastName.value,
+      //         address: form.address.value,
+      //         city: form.city.value,
+      //         email: form.email.value,
+      //       },
+      //       products: productId,
+      //     };
+      //     console.log(orderProducts);
+      //     fetch("http://localhost:3000/api/products/order", {
+      //       method: "POST",
+      //       body: JSON.stringify(orderProducts),
+      //       headers: { "Content-Type": "application/json" },
+      //     })
+      //       .then((res) => {
+      //         // const response = //
+      //         res.json();
+
+      //         console.log(res);
+      //         // const orderId = JSON.parse(response);
+      //         // console.log(orderId);
+      //         // document.location.href = "../html/confirmation.html";
+      //       })
+      //       .then((result) => {
+      //         const products = result;
+      //         // localStorage.setItem("order", JSON.stringify(orderProducts));
+      //         console.log(products);
+      //         // document.location.href = "../html/confirmation.html";
+      //       });
     }
   });
 }
@@ -370,3 +396,57 @@ deleteProduct();
 totalPrice();
 totalQuantity();
 userDataProcessing();
+
+//  //Condition si il y a plus de 1 produit dans le local storage alors on supprimer le produit souhaité//
+//  if (totalProduitblah == 1) {
+//   localStorage.removeItem("produit");
+//   totalPrice.innerText = "";
+//   totalQuantity.innerText = "";
+//   localStorage.clear();
+// }
+// // Si l'utilisateur supprime l'unique produit de sa commande on vide le local storage//
+// else {
+//   for (i = 0; i < pp.length; i++) {
+//     const bb = pp[i];
+//     if (bb.dataset.id != produitPanier[i].id || bb.dataset.colors != produitPanier[i].colors) {
+//       produitPanier.splice(produitPanier[i], 1);
+//       console.log("sdiouu");
+//     }
+//   }
+// }
+
+// function deleteProduct() {
+//   const deleteItem = document.querySelectorAll(".deleteItem");
+//   for (i = 0; i < deleteItem.length; i++) {
+//     const selectBtnDelete = deleteItem[i];
+//     selectBtnDelete.addEventListener("click", () => {
+//       const selectParentDelete = selectBtnDelete.closest("article");
+//       selectParentDelete.parentNode.removeChild(selectParentDelete);
+//       for (i = produitPanier.length; i <= produitPanier.length; i++) {
+//         // Condition si il y a plus de 1 produit dans le local storage alors on supprimer le produit souhaité//
+//         if (produitPanier.length > 1) {
+//           produitPanier.splice(produitPanier[i], 1);
+//           localStorage.setItem("Produit", JSON.stringify(produitPanier));
+//         }
+//         // Si l'utilisateur supprime l'unique produit de sa commande on vide le local storage//
+//         else {
+//           localStorage.clear();
+//         }
+//       }
+//       // Creation d'une boucle pour calculer le prix et la quantité total de la commande quand un élément est supprimer//
+
+//       const totalPrice = document.getElementById("totalPrice");
+//       const totalQuantity = document.getElementById("totalQuantity");
+//       let totalProductPrice = 0;
+//       let totalProductQuantity = 0;
+//       for (let i = 0; i < produitPanier.length; i++) {
+//         let prixTotal = produitPanier[i].price * produitPanier[i].quantity;
+//         totalProductQuantity += produitPanier[i].quantity;
+//         totalProductPrice += prixTotal;
+//         // Le resultat est renvoyer dans les balises texte correspondante//
+//         totalPrice.innerText = totalProductPrice;
+//         totalQuantity.innerText = totalProductQuantity;
+//       }
+//     });
+//   }
+// }
