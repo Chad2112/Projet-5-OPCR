@@ -1,6 +1,5 @@
 /* Recuperation du local storage au format JSON depuis le format string */
 let produitPanier = JSON.parse(localStorage.getItem("Produit"));
-console.log(produitPanier);
 /* Création d'une boucle pour recuperer tous les produit du panier
   et création des balise correspondante par nombre de produit dans le panier*/
 function createElementHtml() {
@@ -24,7 +23,6 @@ function createElementHtml() {
     const inputQuantity = document.createElement("input");
     const contentDelete = document.createElement("div");
     const deleteItem = document.createElement("p");
-    const totalOrderPrice = document.getElementById("totalPrice");
 
     /* Ajout des attribut correspondant a leur balises respéctives, 
   et ajouts des noeud enfants aux noeud parents */
@@ -71,15 +69,15 @@ function createElementHtml() {
   }
 }
 
-function priceArticle() {
+function productPrice() {
+  const productPrice = document.querySelectorAll("#price");
   /* Création d'une boucle pour selectionner toutes les balise 'p' correspondant au prix de chaque articles
    */
-  const priceArticle = document.querySelectorAll("#price");
-  for (i = 0; i < priceArticle.length; i++) {
+  for (i = 0; i < productPrice.length; i++) {
     // Ajout dans une variable le prix de chaque article multiplié par leur nombre//
     let prix = produitPanier[i].price * produitPanier[i].quantity;
     // Ajout du resultat son forme de texte dans la balise 'p' correspondant au prix de chaque articles//
-    priceArticle[i].innerText = `${prix} €`;
+    productPrice[i].innerText = `${prix} €`;
   }
 }
 
@@ -132,6 +130,7 @@ function totalQuantity() {
 // .. le prix des articles ainsi que le prix total de tous les articles réuni//
 function editQuantityAndPrice() {
   const input = document.querySelectorAll(".itemQuantity");
+  console.log(input);
   //  Création d'un boucle qui recupère tout les inputs de la page //
   input.forEach((btnInput) =>
     /* Création d'un evenement au click qui lorsque la quantité est modifier sur ..
@@ -139,7 +138,7 @@ function editQuantityAndPrice() {
    .. la quantité de chaque article, ainsi que la quantité total et renvoi le resultat au local storage */
     btnInput.addEventListener("click", () => {
       productQuantity();
-      priceArticle();
+      productPrice();
       totalPrice();
       totalQuantity();
     })
@@ -159,10 +158,8 @@ function deleteProduct() {
         localStorage.clear();
       } else {
         const filter = produitPanier.filter((productIdAndColors) => productIdAndColors.Id != selectParentDelete.dataset.id || productIdAndColors.colors != selectParentDelete.dataset.colors);
+
         localStorage.setItem("Produit", JSON.stringify(filter));
-        console.log("produit supprimer");
-        totalPrice();
-        totalQuantity();
       }
     })
   );
@@ -171,21 +168,165 @@ function deleteProduct() {
 //*******************************************************************VAlIDATION DU FORMULAIRE********************************************************************************** */
 
 // Creation d'une fonction qui envoie un message d'erreur si le formulaire est mal rempli//
-function userDataProcessing() {
+const form = document.querySelector(".cart__order__form");
+function validFirstName() {
   const firstNameError = document.getElementById("firstNameErrorMsg");
-  const lastNameError = document.getElementById("lastNameErrorMsg");
-  const addressError = document.getElementById("addressErrorMsg");
-  const cityError = document.getElementById("cityErrorMsg");
-  const emailError = document.getElementById("emailErrorMsg");
-  const form = document.querySelector(".cart__order__form");
-  const submit = document.getElementById("order");
-
   form.firstName.setAttribute("placeholder", "Exemple : Patrick");
-  form.lastName.setAttribute("placeholder", "Exemple : Dupont");
-  form.address.setAttribute("placeholder", "Exemple : 31 rue jean jaurès");
-  form.city.setAttribute("placeholder", "Exemple : Marseille");
-  form.email.setAttribute("placeholder", "Exemple : patrickdupont@gmail.com");
+  let firstNameRegExp = new RegExp(/^[a-zA-Z ,.'-]+$/);
 
+  let testFirstName = firstNameRegExp.test(form.firstName.value);
+
+  if (testFirstName == true) {
+    firstNameError.innerText = "";
+    firstNameError.classList.remove("text__invalid");
+    form.firstName.classList.remove("border__text__invalid");
+    form.firstName.classList.add("border__text__valid");
+    return true;
+  } else {
+    form.email.classList.remove("border__text__valid");
+    firstNameError.innerText = "Veuillez renseigner un prenom valide";
+    firstNameError.classList.add("text__invalid");
+    form.firstName.classList.add("border__text__invalid");
+    return false;
+  }
+}
+
+function validLastName() {
+  const lastNameError = document.getElementById("lastNameErrorMsg");
+  form.lastName.setAttribute("placeholder", "Exemple : Dupont");
+  let lastNameRegExp = new RegExp(/^[a-zA-Z ,.'-]+$/);
+
+  let testLastName = lastNameRegExp.test(form.lastName.value);
+
+  if (testLastName == true) {
+    lastNameError.innerText = "";
+    lastNameError.classList.remove("text__invalid");
+    form.lastName.classList.remove("border__text__invalid");
+    form.lastName.classList.add("border__text__valid");
+    return true;
+  } else {
+    form.lastName.classList.remove("border__text__valid");
+    lastNameError.innerText = "Veuillez renseigner un nom valide";
+    lastNameError.classList.add("text__invalid");
+    form.lastName.classList.add("border__text__invalid");
+    return false;
+  }
+}
+
+function validEmail() {
+  const emailError = document.getElementById("emailErrorMsg");
+  form.email.setAttribute("placeholder", "Exemple : patrickdupont@gmail.com");
+  let emailRegExp = new RegExp("^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$");
+
+  let testEmail = emailRegExp.test(form.email.value);
+  console.log(form.email.value);
+  if (testEmail == true) {
+    emailError.innerText = "";
+    emailError.classList.remove("text__invalid");
+    form.email.classList.remove("border__text__invalid");
+    form.email.classList.add("border__text__valid");
+    return true;
+  } else {
+    emailError.innerText = "Veuillez renseigner une adresse mail valide (Exemple : Patrickdupont@gmail.com)";
+    form.email.classList.remove("border__text__valid");
+    form.email.classList.add("border__text__invalid");
+    emailError.classList.add("text__invalid");
+    return false;
+  }
+}
+
+function validAddress() {
+  const addressError = document.getElementById("addressErrorMsg");
+  form.address.setAttribute("placeholder", "Exemple : 31 rue jean jaurès");
+  let addressRegExp = new RegExp(/^[0-9]{1,4} [a-z A-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ.-_]{3,50}$/);
+
+  let testAddress = addressRegExp.test(form.address.value);
+  console.log(testAddress);
+  console.log(form.address.value);
+
+  if (testAddress == true) {
+    addressError.innerText = "";
+    addressError.classList.remove("text__invalid");
+    form.address.classList.remove("border__text__invalid");
+    form.address.classList.add("border__text__valid");
+    return true;
+  } else {
+    addressError.innerText = "Veuillez renseigner une adresse postale valide ( Exemple : 31 rue Jean Jaurès)";
+    form.address.classList.remove("border__text__valid");
+    form.address.classList.add("border__text__invalid");
+    addressError.classList.add("text__invalid");
+    return false;
+  }
+}
+
+function validCity() {
+  const cityError = document.getElementById("cityErrorMsg");
+  form.city.setAttribute("placeholder", "Exemple : Marseille");
+  let cityRegExp = new RegExp(/^[a-zA-Z ,áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ.'-]+$/);
+  let testCity = cityRegExp.test(form.city.value);
+  console.log(testCity);
+  console.log(form.city.value);
+
+  if (testCity == true) {
+    cityError.innerText = "";
+    cityError.classList.remove("text.invalid");
+    form.city.classList.remove("border__text__invalid");
+    form.city.classList.add("border__text__valid");
+    return true;
+  } else {
+    cityError.innerText = "Veuillez renseigner une ville valide ( Exemple : Marseille )";
+    form.city.classList.remove("border__text_valid");
+    form.city.classList.add("border__text__invalid");
+    cityError.classList.add("text__invalid");
+    return false;
+  }
+}
+const submit = document.getElementById("order");
+function submitForm() {
+  if (validFirstName() !== true || validLastName() !== true || validEmail() !== true || validAddress() !== true || validCity() !== true) {
+    console.log("svdiouhbb");
+    e.preventDefault();
+  } else {
+    let productId = [];
+    const dataId = document.querySelectorAll("article");
+    for (i = 0; i < dataId.length; i++) {
+      let dataIdIndex = dataId[i].dataset.id;
+      productId[i] = dataIdIndex;
+    }
+
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    let raw = JSON.stringify({
+      contact: {
+        firstName: form.firstName.value,
+        lastName: form.lastName.value,
+        address: form.address.value,
+        city: form.city.value,
+        email: form.email.value,
+      },
+      products: productId,
+    });
+
+    let requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch("http://localhost:3000/api/products/order", requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        const resultat = result.orderId;
+        console.log(resultat);
+        document.location.href = `../html/confirmation.html?${resultat}`;
+      })
+      .catch((error) => console.log("error", error));
+  }
+}
+function userDataProcessing() {
   // Creation des regex pour verifié les données saisie par l'utilisateur pour la validation de chaque section du formulaire//
 
   form.firstName.addEventListener("change", () => {
@@ -205,184 +346,8 @@ function userDataProcessing() {
     validEmail(this);
   });
 
-  const validFirstName = () => {
-    let firstNameRegExp = new RegExp(/^[a-zA-Z ,.'-]+$/);
-
-    let testFirstName = firstNameRegExp.test(form.firstName.value);
-
-    if (testFirstName == true) {
-      firstNameError.innerText = "";
-      firstNameError.classList.remove("text__invalid");
-      form.firstName.classList.remove("border__text__invalid");
-      form.firstName.classList.add("border__text__valid");
-      return true;
-    } else {
-      form.email.classList.remove("border__text__valid");
-      firstNameError.innerText = "Veuillez renseigner un prenom valide";
-      firstNameError.classList.add("text__invalid");
-      form.firstName.classList.add("border__text__invalid");
-      return false;
-    }
-  };
-
-  const validLastName = () => {
-    let lastNameRegExp = new RegExp(/^[a-zA-Z ,.'-]+$/);
-
-    let testLastName = lastNameRegExp.test(form.lastName.value);
-
-    if (testLastName == true) {
-      lastNameError.innerText = "";
-      lastNameError.classList.remove("text__invalid");
-      form.lastName.classList.remove("border__text__invalid");
-      form.lastName.classList.add("border__text__valid");
-      return true;
-    } else {
-      form.lastName.classList.remove("border__text__valid");
-      lastNameError.innerText = "Veuillez renseigner un nom valide";
-      lastNameError.classList.add("text__invalid");
-      form.lastName.classList.add("border__text__invalid");
-      return false;
-    }
-  };
-
-  const validEmail = () => {
-    let emailRegExp = new RegExp("^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$");
-
-    let testEmail = emailRegExp.test(form.email.value);
-    console.log(form.email.value);
-    if (testEmail == true) {
-      emailError.innerText = "";
-      emailError.classList.remove("text__invalid");
-      form.email.classList.remove("border__text__invalid");
-      form.email.classList.add("border__text__valid");
-      return true;
-    } else {
-      emailError.innerText = "Veuillez renseigner une adresse mail valide (Exemple : Patrickdupont@gmail.com)";
-      form.email.classList.remove("border__text__valid");
-      form.email.classList.add("border__text__invalid");
-      emailError.classList.add("text__invalid");
-      return false;
-    }
-  };
-
-  const validAddress = () => {
-    let addressRegExp = new RegExp(/^[0-9]{1,4} [a-z A-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ.-_]{3,50}$/);
-
-    let testAddress = addressRegExp.test(form.address.value);
-    console.log(testAddress);
-    console.log(form.address.value);
-
-    if (testAddress == true) {
-      addressError.innerText = "";
-      addressError.classList.remove("text__invalid");
-      form.address.classList.remove("border__text__invalid");
-      form.address.classList.add("border__text__valid");
-      return true;
-    } else {
-      addressError.innerText = "Veuillez renseigner une adresse postale valide ( Exemple : 31 rue Jean Jaurès)";
-      form.address.classList.remove("border__text__valid");
-      form.address.classList.add("border__text__invalid");
-      addressError.classList.add("text__invalid");
-      return false;
-    }
-  };
-
-  const validCity = () => {
-    let cityRegExp = new RegExp(/^[a-zA-Z ,áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ.'-]+$/);
-    let testCity = cityRegExp.test(form.city.value);
-    console.log(testCity);
-    console.log(form.city.value);
-
-    if (testCity == true) {
-      cityError.innerText = "";
-      cityError.classList.remove("text.invalid");
-      form.city.classList.remove("border__text__invalid");
-      form.city.classList.add("border__text__valid");
-      return true;
-    } else {
-      cityError.innerText = "Veuillez renseigner une ville valide ( Exemple : Marseille )";
-      form.city.classList.remove("border__text_valid");
-      form.city.classList.add("border__text__invalid");
-      cityError.classList.add("text__invalid");
-      return false;
-    }
-  };
-  submit.addEventListener("click", (e) => {
-    if (validFirstName() !== true || validLastName() !== true || validEmail() !== true || validAddress() !== true || validCity() !== true) {
-      console.log("svdiouhbb");
-      e.preventDefault();
-    } else {
-      e.preventDefault();
-      let productId = [];
-      const dataId = document.querySelectorAll("article");
-      for (i = 0; i < dataId.length; i++) {
-        let dataIdIndex = dataId[i].dataset.id;
-        productId[i] = dataIdIndex;
-      }
-
-      let myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-
-      let raw = JSON.stringify({
-        contact: {
-          firstName: form.firstName.value,
-          lastName: form.lastName.value,
-          address: form.address.value,
-          city: form.city.value,
-          email: form.email.value,
-        },
-        products: productId,
-      });
-
-      let requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow",
-      };
-
-      fetch("http://localhost:3000/api/products/order", requestOptions)
-        .then((response) => response.json())
-        .then((result) => {
-          console.log(result);
-          const resultat = result.orderId;
-          console.log(resultat);
-          document.location.href = `../html/confirmation.html?${resultat}`;
-        })
-        .catch((error) => console.log("error", error));
-
-      //     let orderProducts = {
-      //       contact: {
-      //         firstName: form.firstName.value,
-      //         lastName: form.lastName.value,
-      //         address: form.address.value,
-      //         city: form.city.value,
-      //         email: form.email.value,
-      //       },
-      //       products: productId,
-      //     };
-      //     console.log(orderProducts);
-      //     fetch("http://localhost:3000/api/products/order", {
-      //       method: "POST",
-      //       body: JSON.stringify(orderProducts),
-      //       headers: { "Content-Type": "application/json" },
-      //     })
-      //       .then((res) => {
-      //         // const response = //
-      //         res.json();
-
-      //         console.log(res);
-      //         // const orderId = JSON.parse(response);
-      //         // console.log(orderId);
-      //         // document.location.href = "../html/confirmation.html";
-      //       })
-      //       .then((result) => {
-      //         const products = result;
-      //         // localStorage.setItem("order", JSON.stringify(orderProducts));
-      //         console.log(products);
-      //         // document.location.href = "../html/confirmation.html";
-      //       });
-    }
+  submit.addEventListener("click", () => {
+    submitForm();
   });
 }
 
