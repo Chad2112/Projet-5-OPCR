@@ -1,5 +1,7 @@
 /* Recuperation du local storage au format JSON depuis le format string */
 let produitPanier = JSON.parse(localStorage.getItem("Produit"));
+console.log(produitPanier);
+
 /* Création d'une boucle pour recuperer tous les produit du panier
   et création des balise correspondante par nombre de produit dans le panier*/
 function createElementHtml() {
@@ -68,25 +70,22 @@ function createElementHtml() {
     textPrice.innerText = `${produitPanier[i].price * produitPanier[i].quantity} €`;
   }
 }
-
+// Function qui calcul le prix total de chaque produit //
 function productPrice() {
   const productPrice = document.querySelectorAll("#price");
-  /* Création d'une boucle pour selectionner toutes les balise 'p' correspondant au prix de chaque articles
-   */
   for (i = 0; i < productPrice.length; i++) {
-    // Ajout dans une variable le prix de chaque article multiplié par leur nombre//
     let prix = produitPanier[i].price * produitPanier[i].quantity;
-    // Ajout du resultat son forme de texte dans la balise 'p' correspondant au prix de chaque articles//
     productPrice[i].innerText = `${prix} €`;
   }
 }
 
+// Function qui actualise la quantité total de chaque produit en cas de changement sur la balise input //
 function productQuantity() {
   const quantityText = document.querySelectorAll("#textQuantity");
   const input = document.querySelectorAll(".itemQuantity");
   //  Création d'un boucle qui recupère tout les inputs de la page //
   for (i = 0; i < input.length; i++) {
-    /* Création d'un boucle qui récupere l'index du locale storage 
+    /* Création d'une boucle qui récupere l'index du locale storage 
       pour accéder à la quantité de chaque produit*/
     for (let i = 0; i < produitPanier.length; i++) {
       /* Condition : si la quantité d'un produit dans le local storage est différente de la quantité sur l'input,
@@ -105,9 +104,24 @@ function productQuantity() {
   }
 }
 
+const miniBasketText = document.querySelector(".cartQuantity");
+function miniBasket() {
+  if (produitPanier != null) {
+    let totalQuantityInCart = 0;
+
+    totalQuantityInCart += produitPanier.length;
+
+    miniBasketText.innerText = `${totalQuantityInCart}`;
+    console.log("ok");
+  } else {
+    miniBasketText.innerText = "0";
+    console.log("not");
+  }
+}
+
 //Creation d'une fonction qui calcul le prix total de tout les articles confondu présent dans le panier//
-function totalPrice() {
-  const totalPrice = document.getElementById("totalPrice");
+const totalPrice = document.getElementById("totalPrice");
+function calculTotalPrice() {
   let total = 0;
   for (let i = 0; i < produitPanier.length; i++) {
     let prixTotal = produitPanier[i].price * produitPanier[i].quantity;
@@ -116,50 +130,54 @@ function totalPrice() {
   totalPrice.innerText = total;
 }
 //Creation d'une fonction qui calcul la quantité total de tout les articles confondu présent dans le panier//
-function totalQuantity() {
+const totalQuantity = document.getElementById("totalQuantity");
+function calculTotalQuantity() {
   let totalProductQuantity = 0;
   for (i = 0; i < produitPanier.length; i++) {
     totalProductQuantity += produitPanier[i].quantity;
   }
   /* Ajout du total de la quantité sous forme de texte dans la balise correspondante */
-  const totalQuantity = document.getElementById("totalQuantity");
   totalQuantity.innerText = totalProductQuantity;
 }
-// Selection des balises qui vont etre modifier par la suite au click sur les balises input//
-// .. notament la quantité de chaque produit, la quantité total de tous les produit additionner//
-// .. le prix des articles ainsi que le prix total de tous les articles réuni//
+// Function qui actualise le prix et la quantité a chaque changement de quantité sur l'input //
 function editQuantityAndPrice() {
   const input = document.querySelectorAll(".itemQuantity");
-  console.log(input);
   //  Création d'un boucle qui recupère tout les inputs de la page //
   input.forEach((btnInput) =>
-    /* Création d'un evenement au click qui lorsque la quantité est modifier sur ..
-  .. l'input elle modifie également le prix de chaque articles , le prix total , ..
-   .. la quantité de chaque article, ainsi que la quantité total et renvoi le resultat au local storage */
     btnInput.addEventListener("click", () => {
       productQuantity();
       productPrice();
-      totalPrice();
-      totalQuantity();
+      calculTotalPrice();
+      calculTotalQuantity();
     })
   );
 }
-
-// Creation d'un fonction pour permettre a l'utilisateur de supprimer de son panier le produit qu'il souhaite//
-
+// Creation d'un fonction pour permettre a l'utilisateur de supprimer de son panier le produit qu'il souhaite/
 function deleteProduct() {
   const deleteItem = document.querySelectorAll(".deleteItem");
   deleteItem.forEach((btnDelete) =>
     btnDelete.addEventListener("click", () => {
+      // Suppresion de la balise HTML "article" correspondante en cas de clique sur le bouton supprimer//
       const selectParentDelete = btnDelete.closest("article");
       selectParentDelete.parentNode.removeChild(selectParentDelete);
-
-      if (produitPanier.length == 1) {
-        localStorage.clear();
-      } else {
+      if (produitPanier.length > 1) {
+        // Creation d'un filter pour selectionne tous les produits sauf celui supprimer //
         const filter = produitPanier.filter((productIdAndColors) => productIdAndColors.Id != selectParentDelete.dataset.id || productIdAndColors.colors != selectParentDelete.dataset.colors);
-
+        // Le nouveau tableau est renvoyer au local storage //
         localStorage.setItem("Produit", JSON.stringify(filter));
+        // Le local storage est actualisé//
+        produitPanier = filter;
+        // Recalcul du prix et de la quantité total a chaque produit supprimer //
+        calculTotalPrice();
+        calculTotalQuantity();
+        miniBasket();
+      }
+      // Si il ne restait qu'un seul produit l'or de la suppresion le local storage est vidé //
+      else {
+        localStorage.clear();
+        totalPrice.innerText = "";
+        totalQuantity.innerText = "";
+        miniBasketText.innerText = "0";
       }
     })
   );
@@ -167,8 +185,9 @@ function deleteProduct() {
 
 //*******************************************************************VAlIDATION DU FORMULAIRE********************************************************************************** */
 
-// Creation d'une fonction qui envoie un message d'erreur si le formulaire est mal rempli//
+// Creation des REGEX pour s'assurer que le formulaire est correctement rempli par l'utilisateur//
 const form = document.querySelector(".cart__order__form");
+// REGEX prénom //
 function validFirstName() {
   const firstNameError = document.getElementById("firstNameErrorMsg");
   form.firstName.setAttribute("placeholder", "Exemple : Patrick");
@@ -190,7 +209,7 @@ function validFirstName() {
     return false;
   }
 }
-
+// REGEX nom //
 function validLastName() {
   const lastNameError = document.getElementById("lastNameErrorMsg");
   form.lastName.setAttribute("placeholder", "Exemple : Dupont");
@@ -212,7 +231,7 @@ function validLastName() {
     return false;
   }
 }
-
+// REGEX email //
 function validEmail() {
   const emailError = document.getElementById("emailErrorMsg");
   form.email.setAttribute("placeholder", "Exemple : patrickdupont@gmail.com");
@@ -234,15 +253,13 @@ function validEmail() {
     return false;
   }
 }
-
+// REGEX adress //
 function validAddress() {
   const addressError = document.getElementById("addressErrorMsg");
   form.address.setAttribute("placeholder", "Exemple : 31 rue jean jaurès");
   let addressRegExp = new RegExp(/^[0-9]{1,4} [a-z A-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ.-_]{3,50}$/);
 
   let testAddress = addressRegExp.test(form.address.value);
-  console.log(testAddress);
-  console.log(form.address.value);
 
   if (testAddress == true) {
     addressError.innerText = "";
@@ -258,14 +275,12 @@ function validAddress() {
     return false;
   }
 }
-
+// REGEX ville //
 function validCity() {
   const cityError = document.getElementById("cityErrorMsg");
   form.city.setAttribute("placeholder", "Exemple : Marseille");
   let cityRegExp = new RegExp(/^[a-zA-Z ,áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ.'-]+$/);
   let testCity = cityRegExp.test(form.city.value);
-  console.log(testCity);
-  console.log(form.city.value);
 
   if (testCity == true) {
     cityError.innerText = "";
@@ -281,54 +296,9 @@ function validCity() {
     return false;
   }
 }
-const submit = document.getElementById("order");
-function submitForm() {
-  if (validFirstName() !== true || validLastName() !== true || validEmail() !== true || validAddress() !== true || validCity() !== true) {
-    console.log("svdiouhbb");
-    e.preventDefault();
-  } else {
-    let productId = [];
-    const dataId = document.querySelectorAll("article");
-    for (i = 0; i < dataId.length; i++) {
-      let dataIdIndex = dataId[i].dataset.id;
-      productId[i] = dataIdIndex;
-    }
 
-    let myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    let raw = JSON.stringify({
-      contact: {
-        firstName: form.firstName.value,
-        lastName: form.lastName.value,
-        address: form.address.value,
-        city: form.city.value,
-        email: form.email.value,
-      },
-      products: productId,
-    });
-
-    let requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
-
-    fetch("http://localhost:3000/api/products/order", requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        const resultat = result.orderId;
-        console.log(resultat);
-        document.location.href = `../html/confirmation.html?${resultat}`;
-      })
-      .catch((error) => console.log("error", error));
-  }
-}
-function userDataProcessing() {
-  // Creation des regex pour verifié les données saisie par l'utilisateur pour la validation de chaque section du formulaire//
-
+// function qui verifie si le formulaire est correctement rempli a chaque focus in focus out //
+function formverification() {
   form.firstName.addEventListener("change", () => {
     validFirstName(this);
   });
@@ -345,69 +315,65 @@ function userDataProcessing() {
   form.email.addEventListener("change", () => {
     validEmail(this);
   });
+}
+// Function qui permet de soumettre le formulaire si celui-ci est correctement rempli //
+function submitForm() {
+  const submit = document.getElementById("order");
+  submit.addEventListener("click", (e) => {
+    // Si le formulaire est mal remplie le bouton submit est bloqué//
+    if (validFirstName() !== true || validLastName() !== true || validEmail() !== true || validAddress() !== true || validCity() !== true) {
+      e.preventDefault();
+    } else {
+      // Si le formulaire est correctement rempli on créé un nouveau tableau //
+      let productId = [];
+      const dataId = document.querySelectorAll("article");
+      for (i = 0; i < dataId.length; i++) {
+        let dataIdIndex = dataId[i].dataset.id;
+        // Les ID de chaque article sont stocké dans le tableau //
+        productId[i] = dataIdIndex;
+      }
 
-  submit.addEventListener("click", () => {
-    submitForm();
+      // Creation des de la requete de type POST avec les information attendu par le back-end //
+
+      let myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+
+      // Creation d'un objet sous forme de sting avec les coordonné du client ainsi que les ID de chaque produit (Information attendu par le bakc end)//
+      let raw = JSON.stringify({
+        contact: {
+          firstName: form.firstName.value,
+          lastName: form.lastName.value,
+          address: form.address.value,
+          city: form.city.value,
+          email: form.email.value,
+        },
+        products: productId,
+      });
+
+      let requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+
+      fetch("http://localhost:3000/api/products/order", requestOptions)
+        .then((response) => response.json())
+        .then((result) => {
+          // Le resultat nous renvoi l'order ID qui sera afficher sur la page commande //
+          const resultat = result.orderId;
+          document.location.href = `../html/confirmation.html?${resultat}`;
+        })
+        .catch((error) => console.log("error", error));
+    }
   });
 }
 
 createElementHtml();
 editQuantityAndPrice();
 deleteProduct();
-totalPrice();
-totalQuantity();
-userDataProcessing();
-
-//  //Condition si il y a plus de 1 produit dans le local storage alors on supprimer le produit souhaité//
-//  if (totalProduitblah == 1) {
-//   localStorage.removeItem("produit");
-//   totalPrice.innerText = "";
-//   totalQuantity.innerText = "";
-//   localStorage.clear();
-// }
-// // Si l'utilisateur supprime l'unique produit de sa commande on vide le local storage//
-// else {
-//   for (i = 0; i < pp.length; i++) {
-//     const bb = pp[i];
-//     if (bb.dataset.id != produitPanier[i].id || bb.dataset.colors != produitPanier[i].colors) {
-//       produitPanier.splice(produitPanier[i], 1);
-//       console.log("sdiouu");
-//     }
-//   }
-// }
-
-// function deleteProduct() {
-//   const deleteItem = document.querySelectorAll(".deleteItem");
-//   for (i = 0; i < deleteItem.length; i++) {
-//     const selectBtnDelete = deleteItem[i];
-//     selectBtnDelete.addEventListener("click", () => {
-//       const selectParentDelete = selectBtnDelete.closest("article");
-//       selectParentDelete.parentNode.removeChild(selectParentDelete);
-//       for (i = produitPanier.length; i <= produitPanier.length; i++) {
-//         // Condition si il y a plus de 1 produit dans le local storage alors on supprimer le produit souhaité//
-//         if (produitPanier.length > 1) {
-//           produitPanier.splice(produitPanier[i], 1);
-//           localStorage.setItem("Produit", JSON.stringify(produitPanier));
-//         }
-//         // Si l'utilisateur supprime l'unique produit de sa commande on vide le local storage//
-//         else {
-//           localStorage.clear();
-//         }
-//       }
-//       // Creation d'une boucle pour calculer le prix et la quantité total de la commande quand un élément est supprimer//
-
-//       const totalPrice = document.getElementById("totalPrice");
-//       const totalQuantity = document.getElementById("totalQuantity");
-//       let totalProductPrice = 0;
-//       let totalProductQuantity = 0;
-//       for (let i = 0; i < produitPanier.length; i++) {
-//         let prixTotal = produitPanier[i].price * produitPanier[i].quantity;
-//         totalProductQuantity += produitPanier[i].quantity;
-//         totalProductPrice += prixTotal;
-//         // Le resultat est renvoyer dans les balises texte correspondante//
-//         totalPrice.innerText = totalProductPrice;
-//         totalQuantity.innerText = totalProductQuantity;
-//       }
-//     });
-//   }
-// }
+miniBasket();
+calculTotalPrice();
+calculTotalQuantity();
+formverification();
+submitForm();

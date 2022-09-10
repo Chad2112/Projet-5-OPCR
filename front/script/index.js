@@ -31,7 +31,25 @@ function recupDataApi() {
         paragrapheText.textContent = articles[data].description;
         console.log(linkProduit);
       }
+      let storage = JSON.parse(localStorage.getItem("Produit"));
+      function totalInBasket() {
+        const miniBasket = document.querySelector(".cartQuantity");
+        if (storage != null) {
+          let totalQuantityInCart = 0;
+
+          totalQuantityInCart += storage.length;
+
+          miniBasket.innerText = `${totalQuantityInCart}`;
+          console.log("ok");
+        } else {
+          miniBasket.innerText = "0";
+          console.log("not");
+        }
+      }
+      totalInBasket();
     })
+
+    // Si la requête get échoue, un texte est retourner en expliquant l'erreur (voir ci-dessous)
     .catch((error) => {
       let texteerror = document.querySelector("h1");
       texteerror.innerText = "Nous n'avons pas réussi à afficher nos produit. Veuillez reesayer ultérieurement";
