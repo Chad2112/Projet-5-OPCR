@@ -40,10 +40,8 @@ function recupDataApi() {
           totalQuantityInCart += storage.length;
 
           miniBasket.innerText = `${totalQuantityInCart}`;
-          console.log("ok");
         } else {
           miniBasket.innerText = "0";
-          console.log("not");
         }
       }
       totalInBasket();
@@ -58,15 +56,3 @@ function recupDataApi() {
     });
 }
 recupDataApi();
-
-//.then((data) => (img.src = data[0].imageUrl))//
-
-//const img = document.getElementById("kanap1");
-//img.src = articles[0].imageUrl;//
-
-//let produitcart = document.createElement("divproduit");//
-// console.log(produitcart);//
-
-//let imagecontainer = document.getElementById("kanap1");//
-//img.src = articles[0].imageURL;//
-//console.log(imagecontainer);//

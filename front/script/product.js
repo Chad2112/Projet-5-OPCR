@@ -1,5 +1,6 @@
 // Récuperation de l'ID correspondant au produit pour chaque page produit//
 const IDProduit = window.location.search.split("?id=").join("");
+// Recuperation des balises html //
 const title = document.getElementById("title");
 const price = document.getElementById("price");
 const description = document.getElementById("description");
@@ -18,9 +19,9 @@ fetch(`http://localhost:3000/api/products/${IDProduit}`)
     alert("Connection impossible avec le serveur");
   })
   // La réponse est récuperer et stocké dans la const pageProduit //
-  // Affichage de toute les caractéristiques du produit dans les balises correspondante //
   .then((dataProduit) => {
     const pageProduit = dataProduit;
+    // Affichage de toute les caractéristiques du produit dans les balises correspondante //
     itemImg.appendChild(imageProduit);
     imageProduit.src = pageProduit.imageUrl;
     imageProduit.alt = pageProduit.altTxt;
@@ -38,16 +39,15 @@ fetch(`http://localhost:3000/api/products/${IDProduit}`)
       console.log(diffColors);
     }
   });
+// Creation d'une fonction qui affiche le total d'articles dans un mini panier a coté du lien "panier"//
 function totalInBasket() {
   let storage = JSON.parse(localStorage.getItem("Produit"));
   if (storage != null) {
     let totalQuantityInCart = 0;
     totalQuantityInCart += storage.length;
     miniBasketText.innerText = `${totalQuantityInCart}`;
-    console.log("ok");
   } else {
     miniBasketText.innerText = "0";
-    console.log("not");
   }
 }
 
@@ -66,7 +66,7 @@ addCart.addEventListener("click", () => {
     price: price.innerText,
   };
 
-  // Function qui renvoi une alerte et bloque le bouton click en cas de quantité ou de couleur non definie //
+  // Function qui renvoi une alerte en cas de quantité ou de couleur non definie //
   function orderError() {
     if (colorsProduct == "" && (quantityProduct < 1 || quantityProduct > 100)) {
       alert("Veuillez selectionner une couleur ainsi qu'une quantité");
@@ -96,18 +96,19 @@ addCart.addEventListener("click", () => {
   // Creation d'une variable qui récupere la commande présente dans le locale storage et la transforme en format JSON //
   storage = JSON.parse(localStorage.getItem("Produit"));
   // function ajouter au panier suivant certaine condition //
-  function addProduitPanier() {
+  function saveOrder() {
     // Si aucun produit n'est présent, le local storage devient un tableau au vide auquel on ajoute la commande //
-    if (storage == null) {
+    if (storage == null && orderError() !== true) {
       storage = [];
       savePanier();
       changeColorBtn();
       totalInBasket();
-    } else {
-      // Si un produit ou plus est présent dans le local storage ..//
+    }
+    // Si un produit ou plus est présent dans le local storage ..//
+    else if (storage != null && orderError() !== true) {
       for (let i = 0; i < storage.length; i++) {
         // Si un article avec la meme couleur et le même id est ajouter au local storage on incrémente juste la quantité //
-        if (storage[i].colors == colorsProduct && storage[i].Id == idProduct && orderError() !== true) {
+        if (storage[i].colors == colorsProduct && storage[i].Id == idProduct) {
           storage[i].quantity += quantityProduct;
           changeColorBtn();
           localStorage.setItem("Produit", JSON.stringify(storage));
@@ -117,7 +118,7 @@ addCart.addEventListener("click", () => {
       }
       for (let i = 0; i < storage.length; i++) {
         // Si un article a déjà le même id mais pas la même couleur dans le local storage on créé un nouvel objet (order)//
-        if (storage[i].Id == idProduct && storage[i].colors != colorsProduct && orderError() !== true) {
+        if (storage[i].Id == idProduct && storage[i].colors != colorsProduct) {
           savePanier();
           changeColorBtn();
           totalInBasket();
@@ -126,7 +127,7 @@ addCart.addEventListener("click", () => {
       }
       for (let i = 0; i < storage.length; i++) {
         // Si l'id de l'article ajouté n'est pas présent dans le local storage on créé un nouvel objet (order)//
-        if (storage[i].Id != idProduct && orderError() !== true) {
+        if (storage[i].Id != idProduct) {
           savePanier();
           changeColorBtn();
           totalInBasket();
@@ -135,31 +136,6 @@ addCart.addEventListener("click", () => {
       }
     }
   }
-  addProduitPanier();
+  saveOrder();
 });
 totalInBasket();
-
-// if (storage == null && orderError() !== true) {
-//   changeColorBtn();
-//   storage = [];
-//   savePanier();
-// } else if (storage != null && orderError() !== true) {
-//   const colorsExist = storage.map((e) => e.colors).indexOf(colorsProduct);
-//   const idExist = storage.map((e) => e.Id).indexOf(idProduct);
-//   const index = storage.map((e) => e.Id + e.colors).indexOf(idProduct + colorsProduct);
-
-//   if (index != -1) {
-//     changeColorBtn();
-//     storage[index].quantity += quantityProduct;
-//     localStorage.setItem("Produit", JSON.stringify(storage));
-//   } else if (colorsExist == -1 && idExist != -1) {
-//     changeColorBtn();
-//     savePanier();
-//   } else if (idExist == -1) {
-//     changeColorBtn();
-//     savePanier();
-//   }
-//   console.log(index);
-//   console.log(idExist);
-//   console.log(colorsExist);
-// }

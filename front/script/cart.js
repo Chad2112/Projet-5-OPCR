@@ -1,4 +1,4 @@
-/* Recuperation du local storage au format JSON depuis le format string */
+/* Recuperation du local storage au format JSON */
 let produitPanier = JSON.parse(localStorage.getItem("Produit"));
 console.log(produitPanier);
 
@@ -103,7 +103,7 @@ function productQuantity() {
     }
   }
 }
-
+// Creation d'une fonction qui affiche le total d'articles dans un mini panier a coté du lien "panier"//
 const miniBasketText = document.querySelector(".cartQuantity");
 function miniBasket() {
   if (produitPanier != null) {
@@ -112,10 +112,8 @@ function miniBasket() {
     totalQuantityInCart += produitPanier.length;
 
     miniBasketText.innerText = `${totalQuantityInCart}`;
-    console.log("ok");
   } else {
     miniBasketText.innerText = "0";
-    console.log("not");
   }
 }
 
@@ -152,7 +150,7 @@ function editQuantityAndPrice() {
     })
   );
 }
-// Creation d'un fonction pour permettre a l'utilisateur de supprimer de son panier le produit qu'il souhaite/
+// Creation d'un fonction pour permettre a l'utilisateur de supprimer de son panier le produit qu'il souhaite//
 function deleteProduct() {
   const deleteItem = document.querySelectorAll(".deleteItem");
   deleteItem.forEach((btnDelete) =>
@@ -187,11 +185,23 @@ function deleteProduct() {
 
 // Creation des REGEX pour s'assurer que le formulaire est correctement rempli par l'utilisateur//
 const form = document.querySelector(".cart__order__form");
+const firstName = document.getElementById("firstName");
+const lastName = document.getElementById("lastName");
+const adress = document.getElementById("address");
+const city = document.getElementById("city");
+const email = document.getElementById("email");
+const submit = document.getElementById("order");
+
+firstName.setAttribute("placeholder", "Exemple : Patrick");
+lastName.setAttribute("placeholder", "Exemple : Dupont");
+address.setAttribute("placeholder", "Exemple : 31 rue jean jaurès");
+city.setAttribute("placeholder", "Exemple : Marseille");
+email.setAttribute("placeholder", "Exemple : patrickdupont@gmail.com");
 // REGEX prénom //
 function validFirstName() {
   const firstNameError = document.getElementById("firstNameErrorMsg");
-  form.firstName.setAttribute("placeholder", "Exemple : Patrick");
-  let firstNameRegExp = new RegExp(/^[a-zA-Z ,.'-]+$/);
+
+  let firstNameRegExp = new RegExp("^[a-zA-Z ,.'-]{2,12}$");
 
   let testFirstName = firstNameRegExp.test(form.firstName.value);
 
@@ -200,20 +210,23 @@ function validFirstName() {
     firstNameError.classList.remove("text__invalid");
     form.firstName.classList.remove("border__text__invalid");
     form.firstName.classList.add("border__text__valid");
+    submit.removeAttribute("style");
     return true;
   } else {
     form.email.classList.remove("border__text__valid");
     firstNameError.innerText = "Veuillez renseigner un prenom valide";
     firstNameError.classList.add("text__invalid");
     form.firstName.classList.add("border__text__invalid");
+    submit.style.boxShadow = "rgb(42, 18, 206, 0) 0 0 22px 6px";
+
     return false;
   }
 }
 // REGEX nom //
 function validLastName() {
   const lastNameError = document.getElementById("lastNameErrorMsg");
-  form.lastName.setAttribute("placeholder", "Exemple : Dupont");
-  let lastNameRegExp = new RegExp(/^[a-zA-Z ,.'-]+$/);
+
+  let lastNameRegExp = new RegExp("^[a-zA-Z ,.'-]{2,12}$");
 
   let testLastName = lastNameRegExp.test(form.lastName.value);
 
@@ -222,19 +235,21 @@ function validLastName() {
     lastNameError.classList.remove("text__invalid");
     form.lastName.classList.remove("border__text__invalid");
     form.lastName.classList.add("border__text__valid");
+    submit.removeAttribute("style");
     return true;
   } else {
     form.lastName.classList.remove("border__text__valid");
     lastNameError.innerText = "Veuillez renseigner un nom valide";
     lastNameError.classList.add("text__invalid");
     form.lastName.classList.add("border__text__invalid");
+    submit.style.boxShadow = "rgb(42, 18, 206, 0) 0 0 22px 6px";
     return false;
   }
 }
 // REGEX email //
 function validEmail() {
   const emailError = document.getElementById("emailErrorMsg");
-  form.email.setAttribute("placeholder", "Exemple : patrickdupont@gmail.com");
+
   let emailRegExp = new RegExp("^[a-zA-Z0-9.-_]+[@]{1}[a-zA-Z0-9.-_]+[.]{1}[a-z]{2,10}$");
 
   let testEmail = emailRegExp.test(form.email.value);
@@ -244,20 +259,21 @@ function validEmail() {
     emailError.classList.remove("text__invalid");
     form.email.classList.remove("border__text__invalid");
     form.email.classList.add("border__text__valid");
+    submit.removeAttribute("style");
     return true;
   } else {
     emailError.innerText = "Veuillez renseigner une adresse mail valide (Exemple : Patrickdupont@gmail.com)";
     form.email.classList.remove("border__text__valid");
     form.email.classList.add("border__text__invalid");
     emailError.classList.add("text__invalid");
+    submit.style.boxShadow = "rgb(42, 18, 206, 0) 0 0 22px 6px";
     return false;
   }
 }
 // REGEX adress //
 function validAddress() {
   const addressError = document.getElementById("addressErrorMsg");
-  form.address.setAttribute("placeholder", "Exemple : 31 rue jean jaurès");
-  let addressRegExp = new RegExp(/^[0-9]{1,4} [a-z A-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ.-_]{3,50}$/);
+  let addressRegExp = new RegExp(/^[0-9]{1,4} [a-z A-ZáàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ.-_]{3,28}$/);
 
   let testAddress = addressRegExp.test(form.address.value);
 
@@ -266,20 +282,21 @@ function validAddress() {
     addressError.classList.remove("text__invalid");
     form.address.classList.remove("border__text__invalid");
     form.address.classList.add("border__text__valid");
+    submit.removeAttribute("style");
     return true;
   } else {
     addressError.innerText = "Veuillez renseigner une adresse postale valide ( Exemple : 31 rue Jean Jaurès)";
     form.address.classList.remove("border__text__valid");
     form.address.classList.add("border__text__invalid");
     addressError.classList.add("text__invalid");
+    submit.style.boxShadow = "rgb(42, 18, 206, 0) 0 0 22px 6px";
     return false;
   }
 }
 // REGEX ville //
 function validCity() {
   const cityError = document.getElementById("cityErrorMsg");
-  form.city.setAttribute("placeholder", "Exemple : Marseille");
-  let cityRegExp = new RegExp(/^[a-zA-Z ,áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ.'-]+$/);
+  let cityRegExp = new RegExp("^[a-zA-Z ,áàâäãåçéèêëíìîïñóòôöõúùûüýÿæœÁÀÂÄÃÅÇÉÈÊËÍÌÎÏÑÓÒÔÖÕÚÙÛÜÝŸÆŒ.'-]{2,20}$");
   let testCity = cityRegExp.test(form.city.value);
 
   if (testCity == true) {
@@ -287,12 +304,15 @@ function validCity() {
     cityError.classList.remove("text.invalid");
     form.city.classList.remove("border__text__invalid");
     form.city.classList.add("border__text__valid");
+    submit.removeAttribute("style");
     return true;
   } else {
     cityError.innerText = "Veuillez renseigner une ville valide ( Exemple : Marseille )";
     form.city.classList.remove("border__text_valid");
     form.city.classList.add("border__text__invalid");
     cityError.classList.add("text__invalid");
+    submit.style.boxShadow = "rgb(42, 18, 206, 0) 0 0 22px 6px";
+
     return false;
   }
 }
@@ -316,14 +336,17 @@ function formverification() {
     validEmail(this);
   });
 }
+
 // Function qui permet de soumettre le formulaire si celui-ci est correctement rempli //
 function submitForm() {
   const submit = document.getElementById("order");
+  console.log(submit);
   submit.addEventListener("click", (e) => {
     // Si le formulaire est mal remplie le bouton submit est bloqué//
     if (validFirstName() !== true || validLastName() !== true || validEmail() !== true || validAddress() !== true || validCity() !== true) {
       e.preventDefault();
     } else {
+      e.preventDefault();
       // Si le formulaire est correctement rempli on créé un nouveau tableau //
       let productId = [];
       const dataId = document.querySelectorAll("article");
@@ -338,7 +361,7 @@ function submitForm() {
       let myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
 
-      // Creation d'un objet sous forme de sting avec les coordonné du client ainsi que les ID de chaque produit (Information attendu par le bakc end)//
+      // Creation d'un objet sous forme de sting avec les coordonné du client ainsi que les ID de chaque produit (Information attendu par le back end)//
       let raw = JSON.stringify({
         contact: {
           firstName: form.firstName.value,
@@ -363,6 +386,7 @@ function submitForm() {
           // Le resultat nous renvoi l'order ID qui sera afficher sur la page commande //
           const resultat = result.orderId;
           document.location.href = `../html/confirmation.html?${resultat}`;
+          console.log(result);
         })
         .catch((error) => console.log("error", error));
     }
